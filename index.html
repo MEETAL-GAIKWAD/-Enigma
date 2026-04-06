@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VitalGuard AI — Predictive Health Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #0D0B2A;
+            --bg-card: #1A1548;
+            --accent-violet: #7C3AED;
+            --accent-cyan: #06B6D4;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --text: #CBD5E1;
+            --text-light: #F1F5F9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-violet);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-cyan);
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: particle-float 15s infinite ease-in-out;
+        }
+
+        @keyframes particle-float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ECG Line Animation */
+        .ecg-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+
+        .ecg-line {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            width: 200%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-violet), var(--accent-cyan), transparent);
+            animation: ecg-scan 3s linear infinite;
+        }
+
+        @keyframes ecg-scan {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        .ecg-pulse {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent 0%, var(--accent-cyan) 10%, 
+                var(--accent-violet) 20%, var(--accent-cyan) 30%,
+                var(--accent-cyan) 40%, transparent 45%,
+                var(--accent-cyan) 50%, var(--accent-violet) 60%,
+                var(--accent-cyan) 70%, var(--accent-cyan) 80%,
+                transparent 100%);
+            background-size: 200% 100%;
+            animation: ecg-pulse 2s linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes ecg-pulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            animation: fade-in-up 1s ease-out;
+        }
+
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.5);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 40px rgba(124, 58, 237, 0.5); }
+            50% { box-shadow: 0 0 60px rgba(124, 58, 237, 0.8), 0 0 80px rgba(6, 182, 212, 0.4); }
+        }
+
+        .brand-name {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(6, 182, 212, 0.5);
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            color: var(--text);
+            margin-top: 1rem;
+            font-weight: 400;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fade-in-up 1s ease-out 0.3s both;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-violet), #9333ea);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.6);
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-cyan);
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(6, 182, 212, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fade-in-up 1s ease-out 0.6s both;
+        }
+
+        .stat-card {
+            background: rgba(26, 21, 72, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-violet));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 10px 40px rgba(6, 182, 212, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-top: 0.3rem;
+        }
+
+        /* Features Section */
+        .features {
+            position: relative;
+            padding: 6rem 2rem;
+            z-index: 1;
+            background: linear-gradient(180deg, transparent, rgba(26, 21, 72, 0.5), transparent);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(26, 21, 72, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .feature-card:hover::after {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-violet);
+            box-shadow: 0 20px 60px rgba(124, 58, 237, 0.3);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.2));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            color: var(--accent-cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .feature-card:hover .feature-icon {
+            border-color: var(--accent-violet);
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.4);
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .feature-desc {
+            font-size: 1rem;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            padding: 4rem 2rem;
+            text-align: center;
+            z-index: 1;
+            position: relative;
+        }
+
+        .tech-title {
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 2rem;
+        }
+
+        .tech-badges {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tech-badge {
+            background: rgba(26, 21, 72, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            transform: scale(1.05);
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator i {
+            font-size: 2rem;
+            color: var(--accent-cyan);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(239, 68, 68, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--danger);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+            color: white;
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .toast-content {
+            color: white;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .toast-message {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .brand-name {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .stats-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stat-card {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation" id="particles"></div>
+    <div class="ecg-container">
+        <div class="ecg-pulse"></div>
+        <div class="ecg-line"></div>
+    </div>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+            </div>
+            <h1 class="brand-name">VitalGuard AI</h1>
+            <p class="tagline">From Reactive Care to Predictive Health — Your Doctor, Always On</p>
+            <div class="hero-buttons">
+                <a href="patient.html" class="btn btn-primary">
+                    <i class="fas fa-user"></i>
+                    Patient Dashboard
+                </a>
+                <a href="doctor.html" class="btn btn-secondary">
+                    <i class="fas fa-stethoscope"></i>
+                    Doctor Dashboard
+                </a>
+            </div>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number">101M</div>
+                    <div class="stat-label">Diabetics Monitored</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">40%</div>
+                    <div class="stat-label">Fewer Hospitalizations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">6-12h</div>
+                    <div class="stat-label">Early Warning</div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2 class="section-title">How VitalGuard AI Works</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-watch"></i>
+                </div>
+                <h3 class="feature-title">Collect</h3>
+                <p class="feature-desc">Continuous real-time monitoring of patient vitals through wearable devices. Heart rate, SpO2, glucose, BP — all synced instantly to our cloud platform.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="feature-title">Predict</h3>
+                <p class="feature-desc">Advanced LSTM AI analyzes patterns to predict health crises 6-12 hours before they happen. Accuracy rates exceeding 94% in clinical trials.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3 class="feature-title">Act</h3>
+                <p class="feature-desc">Smart alerts delivered instantly to doctors and caregivers. Early intervention reduces critical events by up to 70%.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="tech-stack">
+        <p class="tech-title">Powered By</p>
+        <div class="tech-badges">
+            <span class="tech-badge"><i class="fab fa-python"></i> TensorFlow</span>
+            <span class="tech-badge"><i class="fas fa-brain"></i> LSTM Neural Networks</span>
+            <span class="tech-badge"><i class="fab fa-aws"></i> AWS Cloud</span>
+            <span class="tech-badge"><i class="fas fa-database"></i> Health Lake</span>
+            <span class="tech-badge"><i class="fab fa-react"></i> IoT Wearables</span>
+            <span class="tech-badge"><i class="fas fa-shield-alt"></i> HIPAA Compliant</span>
+        </div>
+    </section>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-exclamation-triangle toast-icon"></i>
+        <div class="toast-content">
+            <div class="toast-title">⚠ Alert: Ramesh Kumar's glucose trending critical</div>
+            <div class="toast-message">AI predicts threshold breach in 6-8 hours</div>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Toast notification after 3 seconds
+        setTimeout(() => {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }, 3000);
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stat-card, .feature-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

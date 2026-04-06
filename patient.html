@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard — VitalGuard AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-deep: #0D0B2A;
+            --bg-card: #1A1548;
+            --accent-violet: #7C3AED;
+            --accent-cyan: #06B6D4;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --text: #CBD5E1;
+            --text-light: #F1F5F9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-violet);
+            border-radius: 4px;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: rgba(26, 21, 72, 0.9);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(124, 58, 237, 0.2);
+            padding: 1.5rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 3rem;
+            padding: 0 0.5rem;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--text-light);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: var(--accent-cyan);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 1.5rem 2rem;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem 1.5rem;
+            background: rgba(26, 21, 72, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .patient-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .patient-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .patient-details h2 {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .patient-details p {
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .notification-btn {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            background: rgba(124, 58, 237, 0.3);
+            border-color: var(--accent-cyan);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .live-dot {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .live-dot i {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            color: var(--text-light);
+            font-weight: 700;
+        }
+
+        /* Grid Layout */
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .vital-card {
+            background: rgba(26, 21, 72, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .vital-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-violet);
+            box-shadow: 0 10px 40px rgba(124, 58, 237, 0.2);
+        }
+
+        .vital-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .vital-title {
+            font-size: 0.95rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .vital-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(124, 58, 237, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+        }
+
+        .vital-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 0.3rem;
+        }
+
+        .vital-unit {
+            font-size: 1rem;
+            color: var(--text);
+        }
+
+        .vital-status {
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .vital-status.normal {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .vital-status.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        /* Sparkline Canvas */
+        .sparkline-container {
+            height: 60px;
+            margin-top: 1rem;
+        }
+
+        /* Circular Progress */
+        .progress-ring {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: rgba(124, 58, 237, 0.2);
+            stroke-width: 8;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: var(--accent-cyan);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 251.2;
+            stroke-dashoffset: 251.2;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .progress-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Bar Gauge */
+        .bar-gauge {
+            height: 12px;
+            background: rgba(124, 58, 237, 0.2);
+            border-radius: 6px;
+            margin-top: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-gauge-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .bar-gauge-markers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text);
+            margin-top: 0.3rem;
+        }
+
+        /* Dual Gauge */
+        .dual-gauge {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .gauge-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .gauge-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .gauge-label {
+            font-size: 0.8rem;
+            color: var(--text);
+        }
+
+        /* AI Prediction Panel */
+        .prediction-panel {
+            grid-column: span 2;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(124, 58, 237, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prediction-panel::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(245, 158, 11, 0.3);
+            border-radius: 50%;
+            animation: warning-pulse 2s infinite;
+        }
+
+        @keyframes warning-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.1; }
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--warning);
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        .risk-badge i {
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .prediction-text {
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .confidence-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .confidence-label {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .confidence-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(124, 58, 237, 0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            margin-bottom: 1rem;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: rgba(26, 21, 72, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .chart-container {
+            height: 300px;
+        }
+
+        /* Alerts Timeline */
+        .alerts-section {
+            background: rgba(26, 21, 72, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .alerts-title {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            background: rgba(13, 11, 42, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .alert-item:hover {
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .alert-icon.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .alert-icon.danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .alert-icon.info {
+            background: rgba(6, 182, 212, 0.2);
+            color: var(--accent-cyan);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-message {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 0.3rem;
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: var(--text);
+        }
+
+        .severity-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-badge.high {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .severity-badge.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .vitals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .prediction-panel {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+                padding: 1rem 0.5rem;
+            }
+
+            .logo-text, .nav-link span {
+                display: none;
+            }
+
+            .nav-link {
+                justify-content: center;
+                padding: 1rem;
+            }
+
+            .main-content {
+                margin-left: 80px;
+                padding: 1rem;
+            }
+
+            .vitals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .prediction-panel {
+                grid-column: span 1;
+            }
+
+            .patient-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <span class="logo-text">VitalGuard</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-th-large"></i>
+                        <span>Overview</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-heart"></i>
+                        <span>Vitals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="patient-info">
+                    <div class="patient-avatar">RK</div>
+                    <div class="patient-details">
+                        <h2>Ramesh Kumar</h2>
+                        <p>Age 58 • Diabetic + Hypertension</p>
+                    </div>
+                </div>
+                <div class="top-bar-actions">
+                    <div class="live-dot">
+                        <i class="fas fa-circle"></i>
+                        LIVE
+                    </div>
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">2</span>
+                    </button>
+                    <a href="index.html" class="notification-btn" title="Back to Home">
+                        <i class="fas fa-home"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1>Patient Dashboard</h1>
+            </div>
+
+            <div class="vitals-grid">
+                <div class="vital-card">
+                    <div class="vital-header">
+                        <span class="vital-title">Heart Rate</span>
+                        <div class="vital-icon"><i class="fas fa-heart"></i></div>
+                    </div>
+                    <div class="vital-value">87 <span class="vital-unit">BPM</span></div>
+                    <span class="vital-status normal">Normal</span>
+                    <div class="sparkline-container">
+                        <canvas id="hrSparkline"></canvas>
+                    </div>
+                </div>
+
+                <div class="vital-card">
+                    <div class="vital-header">
+                        <span class="vital-title">Blood Oxygen</span>
+                        <div class="vital-icon"><i class="fas fa-wind"></i></div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-ring">
+                            <svg width="100" height="100">
+                                <circle class="progress-ring-bg" cx="50" cy="50" r="40"></circle>
+                                <circle class="progress-ring-fill" cx="50" cy="50" r="40" id="spo2Ring"></circle>
+                            </svg>
+                            <span class="progress-text">96%</span>
+                        </div>
+                    </div>
+                    <span class="vital-status normal">Healthy</span>
+                </div>
+
+                <div class="vital-card">
+                    <div class="vital-header">
+                        <span class="vital-title">Blood Glucose</span>
+                        <div class="vital-icon"><i class="fas fa-tint"></i></div>
+                    </div>
+                    <div class="vital-value">142 <span class="vital-unit">mg/dL</span></div>
+                    <div class="bar-gauge">
+                        <div class="bar-gauge-fill" id="glucoseBar" style="width: 0%; background: linear-gradient(90deg, var(--warning), var(--danger));"></div>
+                    </div>
+                    <div class="bar-gauge-markers">
+                        <span>70</span>
+                        <span>140</span>
+                        <span>180</span>
+                    </div>
+                    <span class="vital-status warning">Elevated</span>
+                </div>
+
+                <div class="vital-card">
+                    <div class="vital-header">
+                        <span class="vital-title">Blood Pressure</span>
+                        <div class="vital-icon"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="dual-gauge">
+                        <div class="gauge-item">
+                            <div class="gauge-value">128</div>
+                            <div class="gauge-label">Systolic</div>
+                        </div>
+                        <div class="gauge-item">
+                            <div class="gauge-value">84</div>
+                            <div class="gauge-label">Diastolic</div>
+                        </div>
+                    </div>
+                    <span class="vital-status normal">Normal</span>
+                </div>
+
+                <div class="vital-card prediction-panel">
+                    <div class="ai-badge">
+                        <i class="fas fa-robot"></i>
+                        LSTM AI Prediction
+                    </div>
+                    <div class="risk-badge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Risk Level: MEDIUM
+                    </div>
+                    <p class="prediction-text">Predicted crisis window: <strong>Next 6-8 hours</strong> if glucose trend continues. The LSTM model has detected an accelerating upward pattern in blood glucose levels.</p>
+                    <div class="confidence-bar">
+                        <span class="confidence-label">Model Confidence:</span>
+                        <span class="confidence-value" id="confidenceValue">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3 class="chart-title">Vitals Trend (Last 24 Hours)</h3>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: var(--accent-cyan);"></span>
+                            Heart Rate
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot" style="background: var(--accent-violet);"></span>
+                            Glucose
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="vitalsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="alerts-section">
+                <h3 class="alerts-title">Recent Alerts</h3>
+                <div class="alert-item">
+                    <div class="alert-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-message">Glucose levels trending upward — above safe threshold</p>
+                        <p class="alert-time">Today, 2:34 PM</p>
+                    </div>
+                    <span class="severity-badge medium">Medium</span>
+                </div>
+                <div class="alert-item">
+                    <div class="alert-icon danger">
+                        <i class="fas fa-radiation"></i>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-message">AI detected abnormal heart rhythm pattern</p>
+                        <p class="alert-time">Today, 11:20 AM</p>
+                    </div>
+                    <span class="severity-badge high">High</span>
+                </div>
+                <div class="alert-item">
+                    <div class="alert-icon info">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <p class="alert-message">Daily health report generated successfully</p>
+                        <p class="alert-time">Today, 8:00 AM</p>
+                    </div>
+                    <span class="severity-badge medium">Info</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Animate confidence value
+        const confidenceEl = document.getElementById('confidenceValue');
+        let confidence = 0;
+        const targetConfidence = 74;
+        
+        const confidenceInterval = setInterval(() => {
+            confidence++;
+            confidenceEl.textContent = confidence + '%';
+            if (confidence >= targetConfidence) {
+                clearInterval(confidenceInterval);
+            }
+        }, 20);
+
+        // Animate SpO2 ring
+        setTimeout(() => {
+            const ring = document.getElementById('spo2Ring');
+            const circumference = 251.2;
+            const offset = circumference - (96 / 100) * circumference;
+            ring.style.strokeDashoffset = offset;
+        }, 500);
+
+        // Animate glucose bar
+        setTimeout(() => {
+            const bar = document.getElementById('glucoseBar');
+            bar.style.width = '70%';
+        }, 500);
+
+        // Heart Rate Sparkline
+        const hrCanvas = document.getElementById('hrSparkline');
+        const hrCtx = hrCanvas.getContext('2d');
+        hrCanvas.width = hrCanvas.parentElement.offsetWidth;
+        hrCanvas.height = 60;
+
+        const hrData = [82, 85, 88, 84, 87, 89, 86, 83, 87, 85, 88, 90, 87];
+
+        function drawSparkline(canvas, ctx, data, color) {
+            const width = canvas.width;
+            const height = canvas.height;
+            const max = Math.max(...data);
+            const min = Math.min(...data);
+            const range = max - min || 1;
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            
+            const step = width / (data.length - 1);
+            
+            data.forEach((val, i) => {
+                const x = i * step;
+                const y = height - ((val - min) / range) * (height - 10) - 5;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            
+            ctx.stroke();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, color + '40');
+            gradient.addColorStop(1, 'transparent');
+            
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        setTimeout(() => {
+            drawSparkline(hrCanvas, hrCtx, hrData, '#06B6D4');
+        }, 500);
+
+        // Vitals Trend Chart
+        const ctx = document.getElementById('vitalsChart').getContext('2d');
+        
+        const hours = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+        const hrData24 = [72, 70, 68, 75, 82, 85, 88, 86, 84, 82, 80, 78];
+        const glucoseData = [120, 118, 115, 125, 138, 142, 140, 145, 148, 142, 138, 135];
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: hours,
+                datasets: [
+                    {
+                        label: 'Heart Rate (BPM)',
+                        data: hrData24,
+                        borderColor: '#06B6D4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#06B6D4'
+                    },
+                    {
+                        label: 'Glucose (mg/dL)',
+                        data: glucoseData,
+                        borderColor: '#7C3AED',
+                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#7C3AED',
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(124, 58, 237, 0.1)'
+                        },
+                        ticks: {
+                            color: '#CBD5E1'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(124, 58, 237, 0.1)'
+                        },
+                        ticks: {
+                            color: '#CBD5E1'
+                        },
+                        min: 60,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Heart Rate',
+                            color: '#06B6D4'
+                        }
+                    },
+                    y1: {
+                        position: 'right',
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#7C3AED'
+                        },
+                        min: 100,
+                        max: 180,
+                        title: {
+                            display: true,
+                            text: 'Glucose',
+                            color: '#7C3AED'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Live update vitals simulation
+        function updateVitals() {
+            const hrVariation = Math.floor(Math.random() * 6) - 3;
+            const newHR = 87 + hrVariation;
+            document.querySelector('.vital-card:first-child .vital-value').innerHTML = newHR + ' <span class="vital-unit">BPM</span>';
+            
+            hrData.push(newHR);
+            if (hrData.length > 13) hrData.shift();
+            drawSparkline(hrCanvas, hrCtx, hrData, '#06B6D4');
+        }
+
+        setInterval(updateVitals, 3000);
+    </script>
+</body>
+</html>
